@@ -12,7 +12,7 @@ class Konsultasi extends CI_Controller
         $this->load->model('Gejala_model');
         $this->load->model('Users_model');
         $this->load->model('Konsultasi_model');
-        $this->load->model('Riwayat_model');
+        $this->load->model('Hasil_model');
         $this->load->model('Penyakit_model');
         check_role($this->for_role);
     }
@@ -32,13 +32,13 @@ class Konsultasi extends CI_Controller
         //     $riwayat_id = $i;
         //     $get_hasil = $this->hitung($riwayat_id);
 
-        //     $this->Riwayat_model->update_penyakit_id($riwayat_id, $get_hasil['penyakit_id'], $get_hasil['probabilitas']);
+        //     $this->Hasil_model->update_penyakit_id($riwayat_id, $get_hasil['penyakit_id'], $get_hasil['probabilitas']);
         // }
 
         $riwayat_id = $this->input->get('id');
         $get_hasil = $this->hitung($riwayat_id);
 
-        $this->Riwayat_model->update_penyakit_id($riwayat_id, $get_hasil['penyakit_id'], $get_hasil['probabilitas']);
+        $this->Hasil_model->update_penyakit_id($riwayat_id, $get_hasil['penyakit_id'], $get_hasil['probabilitas']);
 
         $data['riwayat'] = null;
 
@@ -56,7 +56,6 @@ class Konsultasi extends CI_Controller
         $this->form_validation->set_rules('nama', 'Nama', 'required|trim');
         $this->form_validation->set_rules('umur', 'Umur', 'required');
         $this->form_validation->set_rules('jenis_kelamin', 'Jenis Kelamin', 'required|trim');
-        $this->form_validation->set_rules('no_hp', 'No HP', 'required|trim');
         $this->form_validation->set_rules('alamat', 'Alamat', 'required|trim');
 
         if ($this->form_validation->run() == FALSE) {
@@ -65,7 +64,6 @@ class Konsultasi extends CI_Controller
                 'nama'          => set_value('nama'),
                 'umur'          => set_value('umur'),
                 'jenis_kelamin' => set_value('jenis_kelamin'),
-                'no_hp'         => set_value('no_hp'),
                 'alamat'        => set_value('alamat')
             ];
             $data['alert_danger'] = validation_errors();
@@ -79,7 +77,6 @@ class Konsultasi extends CI_Controller
                 'nama'          => $this->input->post('nama', true),
                 'umur'          => $this->input->post('umur', true),
                 'jenis_kelamin' => $this->input->post('jenis_kelamin', true),
-                'no_hp'         => $this->input->post('no_hp', true),
                 'alamat'        => $this->input->post('alamat', true),
                 'gejala'        => $this->input->post('gejala') ?? []
             ]);
@@ -93,7 +90,7 @@ class Konsultasi extends CI_Controller
     public function hitung($id)
     {
         // ambil data pasien 1
-        $get_riwayat            = $this->Riwayat_model->get_by_id($id);
+        $get_riwayat            = $this->Hasil_model->get_by_id($id);
         $get_gejalas            = $get_riwayat['gejala'];
         $get_master_gejala      = $this->Gejala_model->get_all();
         $get_master_penyakit    = $this->Penyakit_model->get_all();
@@ -201,7 +198,7 @@ class Konsultasi extends CI_Controller
 
     public function perhitungan()
     {
-        $get_riwayat_all = $this->Riwayat_model->get_all();
+        $get_riwayat_all = $this->Hasil_model->get_all();
 
         foreach ($get_riwayat_all as $riwayat) {
             $result = $this->hitung($riwayat['id']);

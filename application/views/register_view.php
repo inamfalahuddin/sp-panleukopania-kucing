@@ -1,6 +1,6 @@
 <div class="login-box">
     <div class="login-logo">
-        <a href="<?= base_url('/'); ?>"><b>Sistem Pakar Diagnosa Penyakit Gigi</a>
+        <a href="<?= base_url('/'); ?>"><b>SISTEM PAKAR DIAGNOSA PANLEUKOPENIA KUCING</a>
     </div>
 
     <!-- alert -->

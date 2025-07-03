@@ -1,10 +1,10 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Riwayat_model extends CI_Model
+class Hasil_model extends CI_Model
 {
-    protected $table_def        = 'riwayat';
-    protected $table_def_detail = 'riwayat_detail';
+    protected $table_def        = 'hasil_diagnosa';
+    protected $table_def_detail = 'hasil_diagnosa_detail';
     protected $table_gejala     = 'gejala';
     protected $table_penyakit   = 'penyakit';
 
@@ -22,16 +22,16 @@ class Riwayat_model extends CI_Model
     public function get_all()
     {
         $this->db->select('
-            riwayat.*, 
+            hasil_diagnosa.*, 
             penyakit.nama AS nama_penyakit, 
             GROUP_CONCAT(gejala.kode ORDER BY gejala.kode) AS gejala_kode, 
             GROUP_CONCAT(gejala.nama ORDER BY gejala.kode) AS gejala_nama
         ');
         $this->db->from($this->table_def);
-        $this->db->join($this->table_def_detail, 'riwayat.id = riwayat_detail.riwayat_id', 'left');
-        $this->db->join($this->table_gejala, 'riwayat_detail.gejala_id = gejala.id', 'left');
-        $this->db->join($this->table_penyakit, 'riwayat.penyakit_id = penyakit.id', 'left');
-        $this->db->group_by('riwayat.id');
+        $this->db->join($this->table_def_detail, 'hasil_diagnosa.id = hasil_diagnosa_detail.hasil_id', 'left');
+        $this->db->join($this->table_gejala, 'hasil_diagnosa_detail.gejala_id = gejala.id', 'left');
+        $this->db->join($this->table_penyakit, 'hasil_diagnosa.penyakit_id = penyakit.id', 'left');
+        $this->db->group_by('hasil_diagnosa.id');
 
         $query = $this->db->get();
 
@@ -45,12 +45,12 @@ class Riwayat_model extends CI_Model
     public function get_by_id($riwayat_id)
     {
         $this->db->select('
-            riwayat.id as riwayat_id, riwayat.user_id, riwayat.nama as user_nama, riwayat.alamat, riwayat.jenis_kelamin, riwayat.umur, riwayat.no_hp,
+            hasil_diagnosa.id as hasil_id, hasil_diagnosa.user_id, hasil_diagnosa.nama as user_nama, hasil_diagnosa.alamat, hasil_diagnosa.jenis_kelamin, hasil_diagnosa.umur, hasil_diagnosa.no_hp,
             gejala.id as gejala_id, gejala.kode as gejala_kode, gejala.nama as gejala_nama');
-        $this->db->from('riwayat');
-        $this->db->join('riwayat_detail', 'riwayat.id = riwayat_detail.riwayat_id');
-        $this->db->join('gejala', 'gejala.id = riwayat_detail.gejala_id');
-        $this->db->where('riwayat.id', $riwayat_id);
+        $this->db->from('hasil_diagnosa');
+        $this->db->join('hasil_diagnosa_detail', 'hasil_diagnosa.id = hasil_diagnosa_detail.hasil_id');
+        $this->db->join('gejala', 'gejala.id = hasil_diagnosa_detail.gejala_id');
+        $this->db->where('hasil_diagnosa.id', $riwayat_id);
 
         $query = $this->db->get();
         $result = $query->result();
@@ -58,7 +58,7 @@ class Riwayat_model extends CI_Model
         if (empty($result)) return null;
 
         $data = [
-            'id'            => $result[0]->riwayat_id,
+            'id'            => $result[0]->hasil_id,
             'user_id'       => $result[0]->user_id,
             'nama_user'     => $result[0]->user_nama,
             'alamat'        => $result[0]->alamat,
@@ -89,8 +89,8 @@ class Riwayat_model extends CI_Model
 
     public function delete($riwayat_id)
     {
-        // delete riwayat detail
-        $this->db->where('riwayat_id', $riwayat_id);
+        // delete hasil detail
+        $this->db->where('hasil_id', $riwayat_id);
         $this->db->delete($this->table_def_detail);
 
         // check if detail deleted

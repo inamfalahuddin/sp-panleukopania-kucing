@@ -31,7 +31,7 @@ class Gejala extends My_Controller
             $this->db->like('kode', 'G');
             $this->db->order_by('kode', 'DESC');
             $this->db->limit(1);
-            $last = $this->db->get('m_gejala')->row();
+            $last = $this->db->get('gejala')->row();
 
             if ($last) {
                 $num = (int) substr($last->kode, 1);

@@ -64,6 +64,12 @@ class Penyakit_model extends CI_Model
         $this->db->where('gejala_id', $gejala_id);
 
         $query = $this->db->get();
-        return $query->num_rows() > 0 ? 1 : 0;
+        $row = $query->row();
+
+        if ($row && isset($row->nilai)) {
+            return floatval(rtrim(rtrim(number_format($row->nilai, 4, '.', ''), '0'), '.'));
+        }
+
+        return 0;
     }
 }

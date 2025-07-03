@@ -30,7 +30,7 @@ class Penyakit extends My_Controller
             $this->db->like('kode', 'P');
             $this->db->order_by('kode', 'DESC');
             $this->db->limit(1);
-            $last = $this->db->get('m_penyakit')->row();
+            $last = $this->db->get('penyakit')->row();
 
             if ($last) {
                 $num = (int) substr($last->kode, 1);

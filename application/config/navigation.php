@@ -24,10 +24,10 @@ $config['navigation'] = [
         'role' => ['admin'],
     ],
     [
-        'label' => 'Riwayat Diagnosa',
+        'label' => 'Hasil Diagnosa',
         'icon' => 'fas fa-history',
-        'url' => 'riwayat',
-        'active' => ['riwayat'],
+        'url' => 'hasil',
+        'active' => ['hasil'],
         'role' => ['admin'],
     ],
     [

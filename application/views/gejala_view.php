@@ -37,12 +37,12 @@
                                             data-nama="<?= htmlspecialchars($item['nama']) ?>"
                                             data-kode="<?= $item['kode'] ?>"
                                             data-deskripsi="<?= htmlspecialchars($item['deskripsi']) ?>"
-                                            data-toggle="modal" data-target="#tambahGejala">Edit</a> |
+                                            data-toggle="modal" data-target="#tambahGejala">[Edit]</a> ||
                                         <a href="<?= site_url('gejala/delete/'.$item['id']) ?>" 
                                             class="text-danger btn-confirm-delete" 
                                             data-url="<?= site_url('gejala/delete/'.$item['id']) ?>" 
                                             data-message="Yakin ingin menghapus gejala ini?">
-                                            Delete
+                                            [Delete]
                                         </a>
                                     </td>
                                 </tr>

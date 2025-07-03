@@ -3,8 +3,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Konsultasi_model extends CI_Model
 {
-    protected $table_riwayat        = 'riwayat';
-    protected $table_riwayat_detail = 'riwayat_detail';
+    protected $table_riwayat        = 'hasil_diagnosa';
+    protected $table_riwayat_detail = 'hasil_diagnosa_detail';
     protected $table_gejala         = 'gejala';
     protected $table_penyakit       = 'penyakit';
 
@@ -38,7 +38,7 @@ class Konsultasi_model extends CI_Model
         $data_detail = [];
         foreach ($data['gejala'] as $value) {
             $data_detail[] = [
-                'riwayat_id' => $riwayat_id,
+                'hasil_id' => $riwayat_id,
                 'gejala_id'  => $value,
             ];
         }
@@ -51,13 +51,13 @@ class Konsultasi_model extends CI_Model
 
     public function get_by_id($riwayat_id)
     {
-        $this->db->select('riwayat.*, penyakit.nama as nama_penyakit, GROUP_CONCAT(gejala.kode) as gejala_kode, GROUP_CONCAT(gejala.nama) as gejala_nama');
+        $this->db->select('hasil_diagnosa.*, penyakit.nama as nama_penyakit, GROUP_CONCAT(gejala.kode) as gejala_kode, GROUP_CONCAT(gejala.nama) as gejala_nama');
         $this->db->from($this->table_riwayat);
-        $this->db->join($this->table_riwayat_detail, 'riwayat.id = riwayat_detail.riwayat_id', 'left');
-        $this->db->join($this->table_gejala, 'riwayat_detail.gejala_id = gejala.id', 'left');
-        $this->db->join($this->table_penyakit, 'riwayat.penyakit_id = penyakit.id', 'left');
-        $this->db->where('riwayat.id', $riwayat_id);
-        $this->db->group_by('riwayat.id');
+        $this->db->join($this->table_riwayat_detail, 'hasil_diagnosa.id = hasil_diagnosa_detail.hasil_id', 'left');
+        $this->db->join($this->table_gejala, 'hasil_diagnosa_detail.gejala_id = gejala.id', 'left');
+        $this->db->join($this->table_penyakit, 'hasil_diagnosa.penyakit_id = penyakit.id', 'left');
+        $this->db->where('hasil_diagnosa.id', $riwayat_id);
+        $this->db->group_by('hasil_diagnosa.id');
 
         return $this->db->get()->row();
     }
@@ -65,7 +65,7 @@ class Konsultasi_model extends CI_Model
     public function hitung($id)
     {
         // ambil data pasien 1
-        $get_riwayat = $this->Riwayat_model->get_by_id($id);
+        $get_riwayat = $this->Konsultasi_model->get_by_id($id);
         $get_gejalas = $get_riwayat['gejala'];
         $get_master_gejala = $this->Gejala_model->get_all();
         $get_master_penyakit = $this->Penyakit_model->get_all();

@@ -5,7 +5,7 @@
                 <h2 class="card-title">Data Riwayat Diagnosa</h2>
 
                 <div class="card-tools">
-                    <a href="<?= base_url('riwayat/perhitungan'); ?>" class="btn btn-success btn-sm">
+                    <a href="<?= base_url('hasil/perhitungan'); ?>" class="btn btn-success btn-sm">
                         Lihat Perhitungan
                     </a>
                 </div>
@@ -39,14 +39,14 @@
                                     <td><span class="fst-italic"><?= $item['nama_penyakit']; ?></span></td>
                                     <td width="10%" class="text-end">
                                         <div>
-                                            <a href="<?= base_url('riwayat/delete/') . $item['id']; ?>" class="text-danger btn-delete">Delete</a>
+                                            <a href="<?= base_url('hasil/delete/') . $item['id']; ?>" class="text-danger btn-delete">[Delete]</a>
                                         </div>
                                     </td>
                                 </tr>
                             <?php endforeach ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="5" class="text-center">Tidak ada data</td>
+                                <td colspan="9" class="text-center">Tidak ada data</td>
                             </tr>
                         <?php endif ?>
                     </tbody>

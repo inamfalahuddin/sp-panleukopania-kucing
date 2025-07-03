@@ -16,7 +16,7 @@
                         <div class="card-body" style="color: #6c757d;">
                             <div class="row">
                                 <!-- Nama -->
-                                <div class="col-md-6 mb-2">
+                                <div class="col-12 mb-2">
                                     <div class="form-group">
                                         <input type="text" class="form-control text-capitalize" id="nama" name="nama"
                                             placeholder="Masukkan nama lengkap Anda" required
@@ -43,16 +43,6 @@
                                             placeholder="Masukkan usia anda" required
                                             value="<?= set_value('umur') ?>">
                                         <?= form_error('umur', '<small class="text-danger">', '</small>') ?>
-                                    </div>
-                                </div>
-
-                                <!-- No HP -->
-                                <div class="col-md-6 mb-2">
-                                    <div class="form-group">
-                                        <input type="number" min="0" class="form-control" id="no_hp" name="no_hp"
-                                            placeholder="Masukkan No. Telp" required
-                                            value="<?= set_value('no_hp') ?>">
-                                        <?= form_error('no_hp', '<small class="text-danger">', '</small>') ?>
                                     </div>
                                 </div>
 
