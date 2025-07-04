@@ -36,9 +36,13 @@ class Konsultasi extends CI_Controller
         // }
 
         $riwayat_id = $this->input->get('id');
-        $get_hasil = $this->hitung($riwayat_id);
+        $get_hasil = $this->hitung($riwayat_id)[0] ?? null;
 
-        $this->Hasil_model->update_penyakit_id($riwayat_id, $get_hasil['penyakit_id'], $get_hasil['probabilitas']);
+        // echo "<pre>";
+        // print_r($get_hasil);
+        // echo "</pre>"; die;
+
+        $this->Hasil_model->update_penyakit_id($riwayat_id, $get_hasil['himpunan_id'], $get_hasil['hitung_total_bayes']['total']    );
 
         $data['riwayat'] = null;
 
@@ -86,123 +90,168 @@ class Konsultasi extends CI_Controller
         }
     }
 
-
     public function hitung($id)
     {
-        // ambil data pasien 1
-        $get_riwayat            = $this->Hasil_model->get_by_id($id);
-        $get_gejalas            = $get_riwayat['gejala'];
-        $get_master_gejala      = $this->Gejala_model->get_all();
-        $get_master_penyakit    = $this->Penyakit_model->get_all();
-
-        // 1. menentukan nilai nc pasa masing" penyakit
-        $penyakit = $this->Penyakit_model->get_all();
+        $get_riwayat         = $this->Hasil_model->get_by_id($id);
+        $get_gejalas         = $get_riwayat['gejala'];
+        $get_master_penyakit = $this->Penyakit_model->get_all();
+        $penyakit            = $this->Penyakit_model->get_all();
 
         $nilai_nc = [];
-        foreach ($penyakit as $key => $item) {
 
+        if(!$penyakit) {
+            return [];
+        }
+
+        foreach ($penyakit as $item) {
             $rule = [];
+
+            if(!$get_gejalas) {
+                continue; // Skip if no gejala selected
+            }
             foreach ($get_gejalas as $gejala) {
                 $rule[] = [
-                    'rule_id' => null,
-                    'gejala_id' => $gejala['id'],
-                    'gejala_kode' => $gejala['kode'],
-                    'gejala_selected' => $this->Penyakit_model->check_exist($item['id'], $gejala['id']),
+                    'gejala_id'        => $gejala['id'],
+                    'gejala_kode'      => $gejala['kode'],
+                    'gejala_selected'  => $this->Penyakit_model->check_exist($item['id'], $gejala['id']),
                 ];
             }
 
-            $tmp = [
-                'penyakit_id'       => $item['id'],
-                'penyakit_kode'     => $item['kode'],
-                'nama'              => $item['nama'],
-                'total_penyakit'    => count($get_master_penyakit),
-                'n'                 => 1,
-                'm'                 => count($get_master_gejala),
-                'rules'             => $rule,
+            // 1. Hitung nilai semesta dan ph_i
+            $semesta = array_sum(array_column($rule, 'gejala_selected'));
+
+            foreach ($rule as &$r) {
+                $selected = floatval($r['gejala_selected']);
+                $ph_i = $semesta > 0 ? $selected / $semesta : 0;
+                $r['ph_i'] = floor($ph_i * 100) / 100;
+            }
+            unset($r);
+
+            // 2. Hitung Probabilitas Hipotesis
+            $formula_text  = [];
+            $formula_value = [];
+            $perkalian     = [];
+            $total         = 0;
+
+            foreach ($rule as $r) {
+                $ph = floatval($r['ph_i']);
+                $pe = floor(floatval($r['gejala_selected']) * 10) / 10;
+
+                if ($ph > 0 && $pe > 0) {
+                    $hasil = $ph * $pe;
+                    $angka = (int) preg_replace('/\D/', '', $r['gejala_kode']);
+
+                    $formula_text[]   = "(P(H{$angka}) x P(E | H{$angka}))";
+                    $formula_value[]  = "(" . number_format($ph, 2, '.', '') . " x " . $pe . ")";
+                    $perkalian[]      = number_format(floor($hasil * 100) / 100, 2, '.', '');
+                    $total           += $hasil;
+                }
+            }
+
+            $total_hipotesis = floatval(number_format($total, 3, '.', ''));
+
+            $probabilitas_hipotesis = [
+                'formula_text'  => implode(' + ', $formula_text),
+                'formula_value' => implode(' + ', $formula_value),
+                'perkalian'     => implode(' + ', $perkalian),
+                'total'         => $total_hipotesis,
             ];
 
-            $nilai_nc_f = $tmp['n'] / $tmp['total_penyakit'];
-            $nilai_nc_f = floor($nilai_nc_f * 1000) / 1000;
-            $tmp['nilai_nc'] = $nilai_nc_f;
+            // 3. Hitung nilai P(Hi | E) per gejala
+            $phi_e_gejala = [];
+            foreach ($rule as $r) {
+                $selected = floatval($r['gejala_selected']);
+                $ph_i     = floatval($r['ph_i']);
+                $hasil    = $selected * $ph_i;
+                $hasil_fix = floor($hasil * 100) / 100;
+                $phi_e    = $total_hipotesis > 0 ? ($hasil_fix * $selected) / $total_hipotesis : 0;
+
+                $angka = (int) preg_replace('/\D/', '', $r['gejala_kode']);
+
+                $phi_e_gejala[] = [
+                    'kode_gejala' => "P(H{$angka} | E)",
+                    'rumus'       => "(" . $selected . " × " . $hasil_fix . ") / " . $total_hipotesis,
+                    'hasil'       => floatval(number_format($phi_e, 3, '.', '')),
+                ];
+            }
+
+            // 4. Hitung total nilai bayes
+            $phi_hasil_array = array_column($phi_e_gejala, 'hasil');
+            $bayes_formula   = implode(' + ', $phi_hasil_array);
+            $bayes_total     = array_sum($phi_hasil_array);
+            $bayes_percent   = floor($bayes_total * 100);
+
+            $hitung_total_bayes = [
+                'formula'    => $bayes_formula,
+                'total'      => floatval(number_format($bayes_total, 3, '.', '')),
+                'persentase' => $bayes_percent . '%'
+            ];
+
+            // 5. Gabungkan semua ke 1 paket
+            $tmp = [
+                'penyakit_id'            => $item['id'],
+                'penyakit_kode'          => $item['kode'],
+                'nama'                   => $item['nama'],
+                'total_penyakit'         => count($get_master_penyakit),
+                'semesta'                => $semesta,
+                'rules'                  => $rule,
+                'probabilitas_hipotesis' => $probabilitas_hipotesis,
+                'phi_e'                  => $phi_e_gejala,
+                'hitung_total_bayes'     => $hitung_total_bayes,
+                'himpunan_id'            => $this->Hasil_model->get_himpunan($hitung_total_bayes['total'])->id,
+            ];
 
             $nilai_nc[] = $tmp;
         }
 
-        // 2. Menghitung nilai P(ai|vj) dan menghitung nilai P(vj)
-        $nilai_p = [];
-        foreach ($nilai_nc as $key => $item) {
+        // 6. Urutkan berdasarkan nilai bayes tertinggi
+        usort($nilai_nc, function ($a, $b) {
+            return $b['hitung_total_bayes']['total'] <=> $a['hitung_total_bayes']['total'];
+        });
 
-            $tmp = [
-                'penyakit_id'           => $item['penyakit_id'],
-                'penyakit_kode'        => $item['penyakit_kode'],
-                'penyakit_nama'        => $item['nama'],
-                'penyakit_total'       => $item['total_penyakit'],
-                'penyakit_n'           => $item['n'],
-                'penyakit_m'           => $item['m'],
-                'nilai_nc'             => $item['nilai_nc'],
-            ];
+        // 7. Ambil hanya 1 penyakit terbaik
+        $hasil_tertinggi = array_slice($nilai_nc, 0, 1);
 
-            $rules = [];
-            foreach ($item['rules'] as $rule) {
-                $pembilang  = $rule['gejala_selected'] + $item['m'] * $item['nilai_nc'];
-                $pembagi    = $item['n'] + $item['m'];
-                $result     = $pembilang / $pembagi;
+        // Debug hasil (jika perlu)
+        // echo "<pre>";
+        // print_r($hasil_tertinggi);
+        // echo "</pre>";
 
-                $rules[] = [
-                    'rule_id'              => $rule['rule_id'],
-                    'gejala_id'            => $rule['gejala_id'],
-                    'gejala_kode'          => $rule['gejala_kode'],
-                    'gejala_selected'      => $rule['gejala_selected'],
-                    'nilai_p'              => number_format($result, 4, '.', '')
-                ];
-            }
-
-            $tmp['rules'] = $rules;
-            $nilai_p[] = $tmp;
-        }
-
-        // 3. Menghitung P(ai|vj) x P(vj) untuk tiap v
-        $probabilitas = [];
-        foreach ($nilai_p as $item) {
-            $hasil_perkalian = 1;
-            foreach ($item['rules'] as $r) {
-                $hasil_perkalian *= $r['nilai_p'];
-            }
-
-            $result = $item['nilai_nc'] * $hasil_perkalian;
-            $probabilitas[] = [
-                'penyakit_id'    => $item['penyakit_id'],
-                'penyakit_kode'  => $item['penyakit_kode'],
-                'penyakit_nama'  => $item['penyakit_nama'],
-                'probabilitas'   => number_format($result, 8, '.', ''),
-            ];
-        }
-
-        // 4. Hasil. ambil hasil terbesar
-        $hasil = [];
-        $max = 0;
-        foreach ($probabilitas as $item) {
-            if ($item['probabilitas'] > $max) {
-                $max = $item['probabilitas'];
-                $hasil = [
-                    'penyakit_id'    => $item['penyakit_id'],
-                    'penyakit_kode'  => $item['penyakit_kode'],
-                    'penyakit_nama'  => $item['penyakit_nama'],
-                    'probabilitas'   => $item['probabilitas'],
-                ];
-            }
-        }
-
-        return $hasil;
+        return $hasil_tertinggi;
     }
 
     public function perhitungan()
     {
+        $data['title'] = 'Perhitungan Bayesian';
         $get_riwayat_all = $this->Hasil_model->get_all();
 
+        $data['himpunan_data'] = $this->db->get('himpunan')->result_array();
+
+        $data['hasils'] = [];
         foreach ($get_riwayat_all as $riwayat) {
-            $result = $this->hitung($riwayat['id']);
-            echo $result['probabilitas'] . '<br>';
+            $hasil = $this->hitung($riwayat['id']);
+            $user_data = $this->Hasil_model->get_by_id($riwayat['id']);
+
+            $data['hasils'][] = [
+                'user_nama' => $user_data['nama_user'], // Adjust according to your user data structure
+                'nama' => $hasil[0]['nama'], // Disease name from hitung result
+                'semesta' => $hasil[0]['semesta'],
+                'rules' => $hasil[0]['rules'],
+                'probabilitas_hipotesis' => $hasil[0]['probabilitas_hipotesis'],
+                'phi_e' => $hasil[0]['phi_e'],
+                'hitung_total_bayes' => $hasil[0]['hitung_total_bayes'],
+                'himpunan_id' => $hasil[0]['himpunan_id'],
+            ];
         }
+
+
+        // echo "<pre>";
+        // print_r($data['hasils']);
+        // echo "</pre>";
+
+        $this->load->view('templates/admin_templates', [
+            'contents' => $this->load->view('diagnosa_perhitungan_view', $data, true),
+            'title' => $data['title']
+        ]);
     }
 }

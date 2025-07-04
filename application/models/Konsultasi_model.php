@@ -7,6 +7,7 @@ class Konsultasi_model extends CI_Model
     protected $table_riwayat_detail = 'hasil_diagnosa_detail';
     protected $table_gejala         = 'gejala';
     protected $table_penyakit       = 'penyakit';
+    protected $table_himpunan       = 'himpunan';
 
     public function __construct()
     {
@@ -24,7 +25,7 @@ class Konsultasi_model extends CI_Model
             'jenis_kelamin' => $data['jenis_kelamin'],
             'umur'          => $data['umur'],
             'no_hp'         => $data['no_hp'],
-            'penyakit_id'   => null,
+            'himpunan_id'   => null,
             'created_at'    => date('Y-m-d H:i:s'),
             'created_by'    => $data['user_id'] ?? null,
             'update_at'     => date('Y-m-d H:i:s'),
@@ -51,11 +52,11 @@ class Konsultasi_model extends CI_Model
 
     public function get_by_id($riwayat_id)
     {
-        $this->db->select('hasil_diagnosa.*, penyakit.nama as nama_penyakit, GROUP_CONCAT(gejala.kode) as gejala_kode, GROUP_CONCAT(gejala.nama) as gejala_nama');
+        $this->db->select('hasil_diagnosa.*, himpunan.variabel as nama_penyakit, GROUP_CONCAT(gejala.kode) as gejala_kode, GROUP_CONCAT(gejala.nama) as gejala_nama');
         $this->db->from($this->table_riwayat);
         $this->db->join($this->table_riwayat_detail, 'hasil_diagnosa.id = hasil_diagnosa_detail.hasil_id', 'left');
         $this->db->join($this->table_gejala, 'hasil_diagnosa_detail.gejala_id = gejala.id', 'left');
-        $this->db->join($this->table_penyakit, 'hasil_diagnosa.penyakit_id = penyakit.id', 'left');
+        $this->db->join($this->table_himpunan, 'hasil_diagnosa.himpunan_id = himpunan.id', 'left');
         $this->db->where('hasil_diagnosa.id', $riwayat_id);
         $this->db->group_by('hasil_diagnosa.id');
 
