@@ -107,7 +107,7 @@ class Konsultasi extends CI_Controller
             $rule = [];
 
             if(!$get_gejalas) {
-                continue; // Skip if no gejala selected
+                continue;
             }
             foreach ($get_gejalas as $gejala) {
                 $rule[] = [
@@ -233,8 +233,8 @@ class Konsultasi extends CI_Controller
             $user_data = $this->Hasil_model->get_by_id($riwayat['id']);
 
             $data['hasils'][] = [
-                'user_nama' => $user_data['nama_user'], // Adjust according to your user data structure
-                'nama' => $hasil[0]['nama'], // Disease name from hitung result
+                'user_nama' => $user_data['nama_user'], 
+                'nama' => $hasil[0]['nama'],
                 'semesta' => $hasil[0]['semesta'],
                 'rules' => $hasil[0]['rules'],
                 'probabilitas_hipotesis' => $hasil[0]['probabilitas_hipotesis'],
