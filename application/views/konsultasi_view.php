@@ -39,10 +39,10 @@
                                 <!-- Umur -->
                                 <div class="col-md-6 mb-2">
                                     <div class="form-group">
-                                        <input type="number" min="0" max="100" class="form-control" id="umur" name="umur"
-                                            placeholder="Masukkan usia anda" required
-                                            value="<?= set_value('umur') ?>">
-                                        <?= form_error('umur', '<small class="text-danger">', '</small>') ?>
+                                        <input type="text" class="form-control" id="nama_kucing" name="nama_kucing"
+                                            placeholder="Masukkan nama kucing anda" required
+                                            value="<?= set_value('nama_kucing') ?>">
+                                        <?= form_error('nama_kucing', '<small class="text-danger">', '</small>') ?>
                                     </div>
                                 </div>
 

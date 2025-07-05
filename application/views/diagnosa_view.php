@@ -16,9 +16,9 @@
                         <tr>
                             <th>No</th>
                             <th>Nama</th>
+                            <th>Nama Kucing</th>
                             <th>Alamat</th>
                             <th>Jenis Kelamin</th>
-                            <th>Umur</th>
                             <th>Gejala</th>
                             <th>Probabilitas</th>
                             <th>Hasil Diagnosa</th>
@@ -31,9 +31,9 @@
                                 <tr>
                                     <td><?= $key + 1 ?></td>
                                     <td><?= $item['nama']; ?></td>
+                                    <td><?= $item['nama_kucing']; ?></td>
                                     <td><?= $item['alamat']; ?></td>
                                     <td><?= $item['jenis_kelamin'] == 'L' ? 'Laki-laki' : 'Perempuan'; ?></td>
-                                    <td><?= $item['umur']; ?> Tahun</td>
                                     <td><?= $item['gejala_kode']; ?></td>
                                     <td><?= $item['probabilitas']; ?></td>
                                     <td><span class="fst-italic"><?= $item['nama_penyakit']; ?></span></td>

@@ -23,7 +23,7 @@ class Konsultasi_model extends CI_Model
             'nama'          => $data['nama'],
             'alamat'        => $data['alamat'],
             'jenis_kelamin' => $data['jenis_kelamin'],
-            'umur'          => $data['umur'],
+            'nama_kucing'   => $data['nama_kucing'] ?? null,
             'no_hp'         => $data['no_hp'],
             'himpunan_id'   => null,
             'created_at'    => date('Y-m-d H:i:s'),

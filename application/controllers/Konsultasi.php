@@ -58,7 +58,6 @@ class Konsultasi extends CI_Controller
     public function submit()
     {
         $this->form_validation->set_rules('nama', 'Nama', 'required|trim');
-        $this->form_validation->set_rules('umur', 'Umur', 'required');
         $this->form_validation->set_rules('jenis_kelamin', 'Jenis Kelamin', 'required|trim');
         $this->form_validation->set_rules('alamat', 'Alamat', 'required|trim');
 
@@ -66,9 +65,8 @@ class Konsultasi extends CI_Controller
             $data['gejala'] = $this->Gejala_model->get_all();
             $data['user']   = (object)[
                 'nama'          => set_value('nama'),
-                'umur'          => set_value('umur'),
                 'jenis_kelamin' => set_value('jenis_kelamin'),
-                'alamat'        => set_value('alamat')
+                'alamat'        => set_value('alamat'),
             ];
             $data['alert_danger'] = validation_errors();
 
@@ -79,7 +77,7 @@ class Konsultasi extends CI_Controller
             $result = $this->Konsultasi_model->store([
                 'user_id'       => $this->session->userdata('user_id'),
                 'nama'          => $this->input->post('nama', true),
-                'umur'          => $this->input->post('umur', true),
+                'nama_kucing'   => $this->input->post('nama_kucing', true),
                 'jenis_kelamin' => $this->input->post('jenis_kelamin', true),
                 'alamat'        => $this->input->post('alamat', true),
                 'gejala'        => $this->input->post('gejala') ?? []

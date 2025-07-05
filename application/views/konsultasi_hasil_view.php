@@ -20,16 +20,16 @@
                                     <td class="text-capitalize"><?= $riwayat->nama; ?></td>
                                 </tr>
                                 <tr>
+                                    <td>Nama Kucing</td>
+                                    <td class="text-capitalize"><?= $riwayat->nama_kucing; ?></td>
+                                </tr>
+                                <tr>
                                     <td>Alamat</td>
                                     <td><?= $riwayat->alamat ?? 'Tidak ada'; ?></td>
                                 </tr>
                                 <tr>
                                     <td width="25%">Jenis Kelamin</td>
                                     <td><?= $riwayat->jenis_kelamin == 'L' ? 'Laki-laki' :  'Perempuan'; ?></td>
-                                </tr>
-                                <tr>
-                                    <td>Umur</td>
-                                    <td><?= $riwayat->umur ?? '--'; ?> Tahun</td>
                                 </tr>
                                 <tr>
                                     <td>No. HP</td>
