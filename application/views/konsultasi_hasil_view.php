@@ -48,7 +48,7 @@
                         </table>
 
                         <div class="text-center">
-                            <a href="<?= base_url('/'); ?>" class="btn btn-primary border-0" style="background-color:#3fbbc0;">Kembali ke Beranda</a>
+                            <a href="<?= base_url('/konsultasi'); ?>" class="btn btn-primary border-0" style="background-color:#3fbbc0;">Kembali ke Beranda</a>
                         </div>
                     </div>
                 </div>
