@@ -196,7 +196,7 @@ class Konsultasi extends CI_Controller
                 'probabilitas_hipotesis' => $probabilitas_hipotesis,
                 'phi_e'                  => $phi_e_gejala,
                 'hitung_total_bayes'     => $hitung_total_bayes,
-                'himpunan_id'            => $this->Hasil_model->get_himpunan($hitung_total_bayes['total'])->id,
+                'himpunan_id'            => $this->Hasil_model->get_himpunan($hitung_total_bayes['total'])->id ?? null,
             ];
 
             $nilai_nc[] = $tmp;
